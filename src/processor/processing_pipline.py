@@ -22,8 +22,9 @@ def run_preprocess(topic:str = "machine learning"):
 
         analysis = analyze_trends(current_data, previous_data, topic=topic)
         save_path = save_analysis(analysis, topic)
+        
 
     except Exception as e:
         logger.exception(f"Error processing topic '{topic}': {e}")
-
+        
     logger.info("All topics processed successfully.")

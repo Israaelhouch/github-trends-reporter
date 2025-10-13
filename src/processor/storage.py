@@ -9,7 +9,7 @@ from config import DATA_OUTPUT_DIR
 
 os.makedirs(DATA_OUTPUT_DIR, exist_ok=True)
 
-def save_analysis(data, topic: str = "general") :
+def save_analysis(data, topic: str = "general"):
     """
     Save analysis results to a JSON file.
     - Includes topic name and timestamp in filename.

@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # GitHub API
 GITHUB_API_URL = "https://api.github.com/search/repositories"
@@ -9,6 +11,7 @@ PER_PAGE = 100
 # Email settings
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
+EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER")
 EMAIL_SMTP_SERVER = "smtp.gmail.com"
 EMAIL_SMTP_PORT = 587
 
