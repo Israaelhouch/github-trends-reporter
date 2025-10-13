@@ -7,7 +7,7 @@ logger = setup_logger()
 
 def main():
     logger.info("Starting GitHub Trends Reporter pipeline...")
-    topic="machine learning"
+    topic="artificial intelligence"
     trends = run_fetch(topic, 200)
     run_preprocess(topic=topic)
     run_notifier(topic=topic)
