@@ -33,3 +33,4 @@ def setup_logger(name: str = "auto_notifier", log_dir: str = "logs"):
     logger.addHandler(console_handler)
 
     return logger
+
