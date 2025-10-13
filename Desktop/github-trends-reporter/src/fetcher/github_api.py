@@ -3,27 +3,22 @@ import requests
 import pandas as pd
 from datetime import datetime
 import time
-from utils.logger import setup_logger
-from config import GITHUB_API_URL, GITHUB_TOKEN 
+from src.utils.logger import setup_logger
+from config import GITHUB_API_URL, HEADERS, PER_PAGE
+
 
 logger = setup_logger("fetcher")
 
-def fetch_repositories(topic: str, top_n: int = 200, delay: float = 1.0):
+def fetch_trending_repos(topic: str="machine learning", top_n: int = 200, delay: float = 1.0):
     """
     Fetch top trending repositories for a given topic from GitHub.
     Handles pagination and basic rate limiting.
     """
     repos = []
-    PER_PAGE = 100
-    total_pages = (top_n + PER_PAGE - 1) // PER_PAGE  
+    total_pages = (top_n + PER_PAGE - 1) // PER_PAGE
     logger.info(f"Fetching {top_n} repositories for topic '{topic}'")
 
-
-    headers = {"Accept": "application/vnd.github.v3+json"}
-    if GITHUB_TOKEN:
-        headers["Authorization"] = f"token {GITHUB_TOKEN}"
-
-    for page in range(1, total_pages + 1):
+    for page in range(1, total_pages+1):
         params = {
             "q": f"{topic} in:name,description",
             "sort": "stars",
@@ -33,7 +28,7 @@ def fetch_repositories(topic: str, top_n: int = 200, delay: float = 1.0):
         }
 
         logger.info(f"Page {page}/{total_pages} request to GitHub API...")
-        response = requests.get(GITHUB_API_URL, headers=headers, params=params)
+        response = requests.get(GITHUB_API_URL, headers=HEADERS, params=params)
 
         if response.status_code == 403:
             logger.warning("Rate limit hit. Waiting 60 seconds...")
@@ -61,9 +56,6 @@ def fetch_repositories(topic: str, top_n: int = 200, delay: float = 1.0):
         "fetched_at": datetime.utcnow().strftime("%Y-%m-%d")
     } for repo in repos])
 
-    # Truncate to top_n
-    df = df.head(top_n)
     logger.info(f"Total fetched repos: {len(df)} for topic '{topic}'")
     return df
- 
 
