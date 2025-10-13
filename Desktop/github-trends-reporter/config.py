@@ -1,8 +1,10 @@
 import os
 
 # GitHub API
-GITHUB_API_URL = "https://api.github.com"
+GITHUB_API_URL = "https://api.github.com/search/repositories"
+HEADERS = {"Accept": "application/vnd.github.v3+json"}
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+PER_PAGE = 100
 
 # Email settings
 EMAIL_USER = os.getenv("EMAIL_USER")
