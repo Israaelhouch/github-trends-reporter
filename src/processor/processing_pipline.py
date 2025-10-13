@@ -1,7 +1,7 @@
 from src.processor.analyze_trends import analyze_trends
 from src.processor.storage import save_analysis
 from src.processor.loader import load_latest_csv, load_previous_csv
-from utils.logger import setup_logger
+from src.utils.logger import setup_logger
 
 logger = setup_logger("processor")
 

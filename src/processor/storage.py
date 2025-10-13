@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 import os
-from utils.logger import setup_logger
+from src.utils.logger import setup_logger
 
 logger = setup_logger("processor")
 
@@ -17,7 +17,7 @@ def save_analysis(data, topic: str = "general") :
     """
     try:
         safe_topic = topic.replace(" ", "_")
-        filename = f"analysis_{safe_topic}_{datetime.now().strftime('%Y-%m-%d')}.json"
+        filename = f"analysis_{safe_topic}_{datetime.now().strftime('%Y_%m_%d')}.json"
         filepath = os.path.join(DATA_OUTPUT_DIR, filename)
 
         with open(filepath, "w", encoding="utf-8") as f:
