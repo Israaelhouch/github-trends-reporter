@@ -34,7 +34,7 @@ jobs:
 
       - name: 🚀 Run GitHub Trends Script
         run: |
-          python src/main.py
+          python main.py
 
       - name: 📁 Upload logs (optional)
         if: always()
