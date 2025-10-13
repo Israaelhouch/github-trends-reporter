@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environments
+.env
+.venv/
+env/
+venv/
+
+# Data and Logs
+data/raw/*
+data/outputs/*
+logs/*
+!data/raw/.gitkeep
+!data/outputs/.gitkeep
+!logs/.gitkeep
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
