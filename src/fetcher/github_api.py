@@ -61,6 +61,6 @@ def fetch_trending_repos(topic: str = "machine learning", top_n: int = 200, dela
         "updated_at": repo["updated_at"],
         "fetched_at": datetime.utcnow().strftime("%Y-%m-%d")
     } for repo in repos])
-
+    df = df[:top_n]
     logger.info(f"Total fetched repos: {len(df)} for topic '{topic}'")
     return df
