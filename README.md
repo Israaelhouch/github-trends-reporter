@@ -1,4 +1,6 @@
-# 🤖 GitHub Trends Reporter & Email Notifier
+# 🤖 GitHub Trends Email Notifier
+[![Weekly GitHub Trends Email](https://github.com/israahch/github-trends-notifier/actions/workflows/weekly_notifier.yml/badge.svg)](https://github.com/israahch/github-trends-notifier/actions)
+
 
 Automatically fetch, analyze, and email the latest GitHub trending repositories — weekly or on-demand.
 
@@ -31,6 +33,15 @@ Automatically fetch, analyze, and email the latest GitHub trending repositories 
 3. **Notifying:** Sends a clean HTML email report using SMTP  
 4. **Automation:** Runs automatically every week via GitHub Actions, or manually with CLI arguments
 5. **Logging:** Stores logs in the logs/ folder; uploaded as artifacts in GitHub Actions
+   
+---
+
+## 🧰 Tech Stack
+- Python (requests, smtplib, pandas)
+- GitHub REST API
+- Email Automation (SMTP)
+- GitHub Actions (CI/CD Scheduling)
+
 ---
 
 ## 🧠 Project Architecture
@@ -101,5 +112,28 @@ python main.py
 # Specify a topic and number of repos
 python main.py --topic "artificial intelligence" --top_n 150
 ```
+
+---
+
+## 🔮 Future Improvements
+- Add charts to the email summary (matplotlib)
+- Support multiple GitHub topics
+- Store trend history in a database
+- Build a simple dashboard (Streamlit or Flask)
+
+---
+
+## 🙌 Credits
+**Created by:** Israa Hch  
+📧 **Contact:** issrach235@gmail.com  
+🌐 **GitHub:** [github.com/israahch](https://github.com/israahch)
+
+---
+
+## ⭐ Contributing & Support
+
+If you like this project, consider giving it a ⭐ on GitHub!
+Contributions and improvements are always welcome 😊
+
 
 
