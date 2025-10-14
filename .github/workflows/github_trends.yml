@@ -3,7 +3,7 @@ name: Weekly GitHub Trends Notifier
 on:
   schedule:
     - cron: "0 8 * * 1"  # Every Monday at 08:00 UTC
-  workflow_dispatch:     # Allows manual run with inputs
+  workflow_dispatch:     # Allows manual run
 
 jobs:
   run-script:
@@ -23,17 +23,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 🔑 Set environment variables
-        env:
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-          EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+      - name: 🔑 Export email secrets
         run: |
-          echo "Environment variables loaded successfully"
+          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> $GITHUB_ENV
+          echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> $GITHUB_ENV
+          echo "EMAIL_RECEIVER=${{ secrets.EMAIL_RECEIVER }}" >> $GITHUB_ENV
 
       - name: 🚀 Run GitHub Trends Script
-        run: |
-          python main.py
+        run: python main.py
 
       - name: 📁 Upload logs (optional)
         if: always()
