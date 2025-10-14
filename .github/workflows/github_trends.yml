@@ -33,9 +33,7 @@ jobs:
 
       - name: 🚀 Run GitHub Trends Script
         run: |
-          python main.py \
-            --topic "${{ github.event.inputs.topic || '' }}" \
-            --top_n "${{ github.event.inputs.top_n || '' }}"
+          python main.py
 
       - name: 📁 Upload logs (optional)
         if: always()
