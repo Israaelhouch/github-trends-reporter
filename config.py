@@ -8,6 +8,10 @@ HEADERS = {"Accept": "application/vnd.github.v3+json"}
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 PER_PAGE = 100
 
+# Fetcher params
+TOP_N = 200
+TOPIC = "machine learning"
+
 # Email settings
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
