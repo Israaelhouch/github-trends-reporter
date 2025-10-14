@@ -6,17 +6,19 @@ logger = setup_logger("notifier")
 
 def send_email(subject: str, body: str, html: bool = True):
     """
-    Send an email notification with GitHub trend results.
-    Works both locally and in CI (GitHub Actions) — no ~/.yagmail file needed.
+    Send an email in GitHub Actions without ~/.yagmail dependency.
     """
     try:
         yag = yagmail.SMTP(
             user=EMAIL_USER,
             password=EMAIL_PASS,
-            oauth2_file=None  # disables searching for ~/.yagmail
+            host='smtp.gmail.com',  # explicit SMTP host
+            port=587,
+            smtp_starttls=True,
+            smtp_ssl=False
         )
 
-        contents = [body] if not html else [body]
+        contents = [body] if not html else [yagmail.inline(body)]
 
         yag.send(
             to=EMAIL_RECEIVER,
@@ -27,5 +29,5 @@ def send_email(subject: str, body: str, html: bool = True):
         logger.info(f"Email sent successfully to {EMAIL_RECEIVER}")
 
     except Exception as e:
-        logger.error(f"Failed to send email: {e}", exc_info=True)
+        logger.exception(f"Failed to send email: {e}")
         raise
