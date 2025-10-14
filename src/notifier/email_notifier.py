@@ -1,30 +1,28 @@
-import yagmail
-from src.utils.logger import setup_logger
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from config import EMAIL_USER, EMAIL_PASS, EMAIL_RECEIVER
+from src.utils.logger import setup_logger
 
 logger = setup_logger("notifier")
 
 def send_email(subject: str, body: str, html: bool = True):
-    """
-    Send an email in GitHub Actions without ~/.yagmail dependency.
-    """
     try:
-        yag = yagmail.SMTP(
-            user=EMAIL_USER,
-            password=EMAIL_PASS,
-            host='smtp.gmail.com',  # explicit SMTP host
-            port=587,
-            smtp_starttls=True,
-            smtp_ssl=False
-        )
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_USER
+        msg['To'] = EMAIL_RECEIVER
+        msg['Subject'] = subject
 
-        contents = [body] if not html else [yagmail.inline(body)]
+        if html:
+            msg.attach(MIMEText(body, 'html'))
+        else:
+            msg.attach(MIMEText(body, 'plain'))
 
-        yag.send(
-            to=EMAIL_RECEIVER,
-            subject=subject,
-            contents=contents
-        )
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(EMAIL_USER, EMAIL_PASS)
+        server.send_message(msg)
+        server.quit()
 
         logger.info(f"Email sent successfully to {EMAIL_RECEIVER}")
 
