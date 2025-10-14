@@ -13,13 +13,19 @@ def send_email(subject: str, body: str, html: bool = True):
         yag = yagmail.SMTP(
             user=EMAIL_USER,
             password=EMAIL_PASS,
-            oauth2_file=None  # prevent yagmail from searching for ~/.yagmail
+            oauth2_file=None  # disables searching for ~/.yagmail
         )
+
+        contents = [body] if not html else [body]
+
         yag.send(
             to=EMAIL_RECEIVER,
             subject=subject,
-            contents=[body] if not html else [yagmail.inline(body)]
+            contents=contents
         )
+
         logger.info(f"Email sent successfully to {EMAIL_RECEIVER}")
+
     except Exception as e:
-        logger.exception(f"Failed to send email: {e}")
+        logger.error(f"Failed to send email: {e}", exc_info=True)
+        raise
