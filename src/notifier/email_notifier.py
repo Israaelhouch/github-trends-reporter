@@ -7,6 +7,9 @@ from src.utils.logger import setup_logger
 logger = setup_logger("notifier")
 
 def send_email(subject: str, body: str, html: bool = True):
+    if not EMAIL_USER or not EMAIL_PASS or not EMAIL_RECEIVER:
+        raise ValueError("Email credentials are not set. Check GitHub Secrets.")
+
     try:
         msg = MIMEMultipart()
         msg['From'] = EMAIL_USER
