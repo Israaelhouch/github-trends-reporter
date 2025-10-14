@@ -1,6 +1,6 @@
 import yagmail
 from src.utils.logger import setup_logger
-from config import EMAIL_SMTP_SERVER, EMAIL_SMTP_PORT, EMAIL_USER, EMAIL_PASS, EMAIL_RECEIVER
+from config import EMAIL_USER, EMAIL_PASS, EMAIL_RECEIVER
 
 logger = setup_logger("notifier")
 

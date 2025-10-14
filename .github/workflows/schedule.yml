@@ -25,7 +25,6 @@ jobs:
 
       - name: 🔑 Set environment variables
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
