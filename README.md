@@ -102,7 +102,11 @@ EMAIL_TO=otheremail@gmail.com
 4. Run the main script to fetch trends, process data, and send email:
 
 ```bash
+# Use defaults from config
 python main.py
+
+# Specify a topic and number of repos
+python main.py --topic "artificial intelligence" --top_n 150
 ```
 
 
