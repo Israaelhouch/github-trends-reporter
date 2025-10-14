@@ -4,12 +4,17 @@ from config import EMAIL_USER, EMAIL_PASS, EMAIL_RECEIVER
 
 logger = setup_logger("notifier")
 
-def send_email(subject: str, body: str, html: bool=True):
+def send_email(subject: str, body: str, html: bool = True):
     """
     Send an email notification with GitHub trend results.
+    Works both locally and in CI (GitHub Actions) — no ~/.yagmail file needed.
     """
     try:
-        yag = yagmail.SMTP(EMAIL_USER, EMAIL_PASS)
+        yag = yagmail.SMTP(
+            user=EMAIL_USER,
+            password=EMAIL_PASS,
+            oauth2_file=None  # prevent yagmail from searching for ~/.yagmail
+        )
         yag.send(
             to=EMAIL_RECEIVER,
             subject=subject,
