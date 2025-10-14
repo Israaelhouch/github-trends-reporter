@@ -1,25 +1,34 @@
-import yagmail
-from src.utils.logger import setup_logger
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from config import EMAIL_USER, EMAIL_PASS, EMAIL_RECEIVER
+from src.utils.logger import setup_logger
 
 logger = setup_logger("notifier")
 
 def send_email(subject: str, body: str, html: bool = True):
-    """
-    Send an email notification with GitHub trend results.
-    Works both locally and in CI (GitHub Actions) — no ~/.yagmail file needed.
-    """
+    if not EMAIL_USER or not EMAIL_PASS or not EMAIL_RECEIVER:
+        raise ValueError("Email credentials are not set. Check GitHub Secrets.")
+
     try:
-        yag = yagmail.SMTP(
-            user=EMAIL_USER,
-            password=EMAIL_PASS,
-            oauth2_file=None  # prevent yagmail from searching for ~/.yagmail
-        )
-        yag.send(
-            to=EMAIL_RECEIVER,
-            subject=subject,
-            contents=[body] if not html else [yagmail.inline(body)]
-        )
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_USER
+        msg['To'] = EMAIL_RECEIVER
+        msg['Subject'] = subject
+
+        if html:
+            msg.attach(MIMEText(body, 'html'))
+        else:
+            msg.attach(MIMEText(body, 'plain'))
+
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(EMAIL_USER, EMAIL_PASS)
+        server.send_message(msg)
+        server.quit()
+
         logger.info(f"Email sent successfully to {EMAIL_RECEIVER}")
+
     except Exception as e:
         logger.exception(f"Failed to send email: {e}")
+        raise

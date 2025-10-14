@@ -2,8 +2,8 @@ name: Weekly GitHub Trends Notifier
 
 on:
   schedule:
-    - cron: "0 8 * * 1"   # Every Monday at 08:00 UTC
-  workflow_dispatch:       
+    - cron: "0 8 * * 1"  # Every Monday at 08:00 UTC
+  workflow_dispatch:     # Allows manual run with inputs
 
 jobs:
   run-script:
@@ -28,13 +28,14 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
-          TOPIC: "artificial intelligence"  # you can change this
-          TOP_N: 200
-        run: echo "Environment variables loaded successfully"
+        run: |
+          echo "Environment variables loaded successfully"
 
       - name: 🚀 Run GitHub Trends Script
         run: |
-          python main.py --topic "$TOPIC" --top_n $TOP_N
+          python main.py \
+            --topic "${{ github.event.inputs.topic || '' }}" \
+            --top_n "${{ github.event.inputs.top_n || '' }}"
 
       - name: 📁 Upload logs (optional)
         if: always()

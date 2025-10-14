@@ -25,6 +25,7 @@ def save_analysis(data, topic: str = "general"):
 
         
         logger.info(f"Trend analysis for '{topic}' saved at: {filepath}")
-
+        return filepath
     except Exception as e:
         logger.exception(f"Failed to save analysis for '{topic}': {e}")
+        raise
