@@ -15,7 +15,7 @@ TOPIC = "machine learning"
 # Email settings
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
-EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER")
+EMAIL_RECEIVER = os.getenv("EMAIL_TO")
 EMAIL_SMTP_SERVER = "smtp.gmail.com"
 EMAIL_SMTP_PORT = 587
 
