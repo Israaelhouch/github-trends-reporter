@@ -1,0 +1,106 @@
+{
+  "date": "2025-10-20",
+  "topic": "machine learning",
+  "total_repos": 200,
+  "forked_repos": 0,
+  "top_languages": {
+    "Python": 50,
+    "Jupyter Notebook": 50,
+    "C++": 19,
+    "JavaScript": 7,
+    "Go": 6,
+    "Java": 5,
+    "C#": 3,
+    "HTML": 3,
+    "Scala": 3,
+    "TeX": 3
+  },
+  "language_share": {
+    "Python": 25.0,
+    "Jupyter Notebook": 25.0,
+    "C++": 9.5,
+    "JavaScript": 3.5,
+    "Go": 3.0,
+    "Java": 2.5,
+    "C#": 1.5,
+    "HTML": 1.5,
+    "Scala": 1.5,
+    "TeX": 1.5
+  },
+  "top_organizations": {
+    "rasbt": 6,
+    "microsoft": 5,
+    "dair-ai": 3,
+    "chiphuyen": 3,
+    "tensorflow": 2,
+    "mrdbourke": 2,
+    "ujjwalkarn": 2,
+    "apache": 2,
+    "firmai": 2,
+    "dotnet": 2
+  },
+  "top_repos": [
+    {
+      "full_name": "tensorflow/tensorflow",
+      "stargazers_count": 192110,
+      "html_url": "https://github.com/tensorflow/tensorflow"
+    },
+    {
+      "full_name": "huggingface/transformers",
+      "stargazers_count": 151362,
+      "html_url": "https://github.com/huggingface/transformers"
+    },
+    {
+      "full_name": "microsoft/ML-For-Beginners",
+      "stargazers_count": 78146,
+      "html_url": "https://github.com/microsoft/ML-For-Beginners"
+    },
+    {
+      "full_name": "fighting41love/funNLP",
+      "stargazers_count": 76687,
+      "html_url": "https://github.com/fighting41love/funNLP"
+    },
+    {
+      "full_name": "josephmisiti/awesome-machine-learning",
+      "stargazers_count": 70266,
+      "html_url": "https://github.com/josephmisiti/awesome-machine-learning"
+    },
+    {
+      "full_name": "scikit-learn/scikit-learn",
+      "stargazers_count": 63737,
+      "html_url": "https://github.com/scikit-learn/scikit-learn"
+    },
+    {
+      "full_name": "gradio-app/gradio",
+      "stargazers_count": 40266,
+      "html_url": "https://github.com/gradio-app/gradio"
+    },
+    {
+      "full_name": "TheAlgorithms/C-Plus-Plus",
+      "stargazers_count": 33182,
+      "html_url": "https://github.com/TheAlgorithms/C-Plus-Plus"
+    },
+    {
+      "full_name": "lutzroeder/netron",
+      "stargazers_count": 31603,
+      "html_url": "https://github.com/lutzroeder/netron"
+    },
+    {
+      "full_name": "ageron/handson-ml2",
+      "stargazers_count": 29489,
+      "html_url": "https://github.com/ageron/handson-ml2"
+    }
+  ],
+  "keywords": {
+    "learning": 51,
+    "machine": 47,
+    "ml": 25,
+    "ai": 13,
+    "awesome": 10,
+    "book": 10,
+    "python": 7,
+    "for": 6,
+    "rasbt": 6,
+    "microsoft": 5
+  }
+}

@@ -2,7 +2,7 @@
 [![Weekly GitHub Trends Email](https://github.com/israahch/github-trends-notifier/actions/workflows/weekly_notifier.yml/badge.svg)](https://github.com/israahch/github-trends-notifier/actions)
 
 
-Automatically fetch, analyze, and email the latest GitHub trending repositories — weekly or on-demand.
+Automatically fetch, analyze, and email the latest GitHub trending repositories — weekly or on-demand — with historical data stored in PostgreSQL.
 
 ---
 
@@ -10,8 +10,9 @@ Automatically fetch, analyze, and email the latest GitHub trending repositories 
 **GitHub Trends Reporter** is a fully automated pipeline that:
 
 - Fetches trending repositories from the GitHub API
-- Analyzes top **languages**, **organizations**, and **topics**
-- Generates structured JSON summaries
+- Stores historical trend data in a PostgreSQL database
+- Analyzes top languages, organizations, and topics
+- Generates structured JSON and HTML summaries
 - Sends formatted email reports automatically
 - Supports weekly scheduled runs via GitHub Actions or manual runs
 - Accepts custom topics and repository count via CLI or config
@@ -20,27 +21,31 @@ Automatically fetch, analyze, and email the latest GitHub trending repositories 
 
  ## 🚀 Features
 - 🔍 Fetches top trending repositories with configurable topic and top_n
+- 🗄️ Stores trend history in PostgreSQL for tracking changes over time
 - 📊 Processes trends and generates analysis (current vs previous data)
 - ✉️ Sends weekly HTML email reports using secure credentials from GitHub Secrets
-- ⏰ Fully automated **GitHub Actions** workflow
-- 🛠️ Supports flexible CLI options for manual or dynamic runs
+- ⏰ Fully automated GitHub Actions workflow
+- 🛠️ Flexible CLI options for manual or dynamic runs
 
 ---
 
 ## ⚙️ How It Works
-1. **Fetching:** Collects trending repositories using GitHub’s REST API  
-2. **Processing:** Analyzes and summarizes repository statistics  
-3. **Notifying:** Sends a clean HTML email report using SMTP  
-4. **Automation:** Runs automatically every week via GitHub Actions, or manually with CLI arguments
-5. **Logging:** Stores logs in the logs/ folder; uploaded as artifacts in GitHub Actions
-   
+Database Initialization: Creates tables in PostgreSQL if they don’t exist.
+
+1. **Fetching:** Collects trending repositories using GitHub’s REST API.
+2. **Processing:** Analyzes repository statistics and compares with previous data from the database.
+3. **Notifying:** Sends a clean HTML email report using SMTP.
+4. **Automation:** Runs automatically weekly via GitHub Actions or manually using CLI arguments.
+5. **Logging:** Logs stored in logs/ folder; uploaded as artifacts in GitHub Actions.
+
 ---
 
 ## 🧰 Tech Stack
-- Python (requests, smtplib, pandas)
+- Python (requests, pandas, SQLAlchemy, smtplib)
 - GitHub REST API
+- PostgreSQL (history & trend storage)
 - Email Automation (SMTP)
-- GitHub Actions (CI/CD Scheduling)
+- GitHub Actions (CI/CD scheduling)
 
 ---
 
@@ -103,7 +108,15 @@ EMAIL_USER=youremail@gmail.com
 EMAIL_PASS=yourapppassword
 EMAIL_TO=otheremail@gmail.com
 ```
-4. Run the main script to fetch trends, process data, and send email:
+4. Set up PostgreSQL
+ - Install PostgreSQL locally or use a server.
+ - Create a database (example: github_trends_db).
+ - Update DATABASE_URL in config.py:
+```bash
+DATABASE_URL = "postgresql+psycopg2://username:password@localhost:5432/github_trends_db"
+```
+
+5. Run the main script to fetch trends, process data, and send email:
 
 ```bash
 # Use defaults from config
@@ -134,6 +147,3 @@ python main.py --topic "artificial intelligence" --top_n 150
 
 If you like this project, consider giving it a ⭐ on GitHub!
 Contributions and improvements are always welcome 😊
-
-
-

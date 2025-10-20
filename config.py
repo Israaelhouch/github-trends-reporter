@@ -19,6 +19,9 @@ EMAIL_RECEIVER = os.getenv("EMAIL_TO")
 EMAIL_SMTP_SERVER = "smtp.gmail.com"
 EMAIL_SMTP_PORT = 587
 
+# Database
+DATABASE_URL = os.getenv("DATABASE_URL")
+
 # Paths
 DATA_RAW_DIR = "data/raw"
 DATA_OUTPUT_DIR = "data/outputs"

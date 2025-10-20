@@ -4,7 +4,6 @@ from src.utils.logger import setup_logger
 
 logger = setup_logger("notifier")
 
-
 def find_latest_analysis_file(topic: str) -> str | None:
     """Find the most recent analysis JSON file for a given topic."""
     safe_topic = topic.replace(" ", "_")

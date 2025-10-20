@@ -4,9 +4,7 @@ import os
 from src.utils.logger import setup_logger
 
 logger = setup_logger("processor")
-
 from config import DATA_OUTPUT_DIR
-
 os.makedirs(DATA_OUTPUT_DIR, exist_ok=True)
 
 def save_analysis(data, topic: str = "general"):
