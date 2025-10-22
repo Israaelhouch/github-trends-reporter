@@ -115,19 +115,34 @@ git clone https://github.com/yourname/github-trends-notifier.git
 ```bash
 pip install -r requirements.txt
 ```
-3. Create a .env file:
+3. Create a `.env` file with your email credentials:
 ```bash
+# Use an app password, NOT your Gmail login password
 EMAIL_USER=youremail@gmail.com
-EMAIL_PASS=yourapppassword
-EMAIL_TO=otheremail@gmail.com
+EMAIL_PASS=your_app_password
+EMAIL_TO=recipient@example.com
 ```
-4. Set up PostgreSQL
- - Install PostgreSQL locally or use a server.
- - Create a database (example: github_trends_db).
- - Update DATABASE_URL in config.py:
+
+4. Set up PostgreSQL 
+
+- Install PostgreSQL locally or use a server.
+- Create a database (example: `github_trends`):
+```sql
+CREATE DATABASE github_trends;
+```
+- Update DATABASE_URL in config.py:
 ```bash
-DATABASE_URL = "postgresql+psycopg2://username:password@localhost:5432/github_trends_db"
+# Local PostgreSQL without password
+DATABASE_URL = "postgresql://macmini@localhost/github_trends"
+
+# If you create a role with password
+DATABASE_URL = "postgresql://username:password@localhost/github_trends"
 ```
+### ⚠️ Notes
+- The script automatically handles table creation (`github_repos`) in PostgreSQL.
+- Re-running the script does **not** recreate tables or delete existing data.
+- Make sure PostgreSQL is running before executing `main.py`.
+
 
 5. Run the main script to fetch trends, process data, and send email:
 

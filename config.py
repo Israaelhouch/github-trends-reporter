@@ -20,7 +20,8 @@ EMAIL_SMTP_SERVER = "smtp.gmail.com"
 EMAIL_SMTP_PORT = 587
 
 # Database
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = "postgresql://macmini@localhost/github_trends"
+
 
 # Paths
 DATA_RAW_DIR = "data/raw"

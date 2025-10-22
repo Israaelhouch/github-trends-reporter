@@ -40,6 +40,3 @@ def run_preprocess(topic: str = "machine learning", db=None):
     except Exception as e:
         logger.exception(f"Processing pipeline failed for topic '{topic}': {e}")
         raise
-
-    finally:
-        db.close()

@@ -1,7 +1,7 @@
 # Python
 __pycache__/
-*.py[cod]
-*.pyo
+*.pyc
+*.sqlite
 
 # Environments
 .env
