@@ -8,7 +8,7 @@ def setup_logger(name: str = "auto_notifier", log_dir: str = "logs"):
     Each run creates a new log file (e.g., logs/run_2025_10_09.log)
     """
     os.makedirs(log_dir, exist_ok=True)
-    log_filename = os.path.join(log_dir, f"run_{datetime.utcnow().strftime('%Y_%m_%d')}.log")
+    log_filename = os.path.join(log_dir, f"logs.log")
 
     # Configure the logger
     logger = logging.getLogger(name)

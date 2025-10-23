@@ -5,4 +5,5 @@ streamlit
 matplotlib
 python-dotenv
 yagmail
-
+sqlalchemy
+psycopg2-binary

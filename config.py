@@ -1,29 +1,45 @@
 import os
-from dotenv import load_dotenv
-load_dotenv()
+# preventing interference from a local .env file inside the container.
+# from dotenv import load_dotenv 
+# load_dotenv()
 
-# GitHub API
+# -------------------------------
+# GitHub API Settings
+# -------------------------------
 GITHUB_API_URL = "https://api.github.com/search/repositories"
 HEADERS = {"Accept": "application/vnd.github.v3+json"}
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN") 
 PER_PAGE = 100
 
-# Fetcher params
+# -------------------------------
+# Fetcher Default Parameters
+# -------------------------------
 TOP_N = 200
 TOPIC = "machine learning"
 
-# Email settings
+# -------------------------------
+# Email Settings
+# -------------------------------
 EMAIL_USER = os.getenv("EMAIL_USER")
-EMAIL_PASS = os.getenv("EMAIL_PASS")
+EMAIL_PASS = os.getenv("EMAIL_PASS")  # This is an App Password, NOT your Gmail login password!
 EMAIL_RECEIVER = os.getenv("EMAIL_TO")
 EMAIL_SMTP_SERVER = "smtp.gmail.com"
 EMAIL_SMTP_PORT = 587
 
-# Database
-DATABASE_URL = "postgresql://macmini@localhost/github_trends"
+# -------------------------------
+# Database Settings
+# -------------------------------
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://postgres_user:postgres_password@localhost:5432/github_trends"
+)
 
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL is not set!")
 
-# Paths
+# -------------------------------
+# Paths / Folders
+# -------------------------------
 DATA_RAW_DIR = "data/raw"
 DATA_OUTPUT_DIR = "data/outputs"
 LOG_DIR = "logs"

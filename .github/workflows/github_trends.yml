@@ -1,60 +1,34 @@
-name: Weekly GitHub Trends Notifier
+name: Daily GitHub Trends Pipeline
 
 on:
   schedule:
-    - cron: "0 8 * * 1"   # Every Monday at 08:00 UTC
-  workflow_dispatch:       # Allow manual run
+    # You can adjust this cron schedule as needed
+    - cron: "0 8 * * 1" 
+  # Allows manual triggering from the Actions tab in GitHub
+  workflow_dispatch:
 
 jobs:
-  run-script:
+  run_pipeline:
     runs-on: ubuntu-latest
 
-    # 🟡 Start a temporary PostgreSQL service
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: github_trends
-        ports:
-          - 5432:5432
-        # Wait until DB is ready
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+    # Define secrets used in your application (EMAIL, GITHUB_TOKEN)
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      
+      # The database URL must be set here for the 'app' container 
+      # The 'db' hostname works within the GitHub Actions runner context if using docker-compose.
+      DATABASE_URL: postgresql+psycopg2://postgres_user:postgres_password@db:5432/github_trends
 
     steps:
-      - name: 🧩 Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 🐍 Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: 📦 Install dependencies
+      - name: Build and Run Docker Compose Pipeline
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Set database URL
-        run: echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/github_trends" >> $GITHUB_ENV
-
-      - name: 🔑 Export email secrets
-        run: |
-          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> $GITHUB_ENV
-          echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> $GITHUB_ENV
-          echo "EMAIL_RECEIVER=${{ secrets.EMAIL_RECEIVER }}" >> $GITHUB_ENV
-
-      - name: 🚀 Run GitHub Trends Script
-        run: python main.py
-
-      - name: 📁 Upload logs (optional)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: logs
-          path: logs/
+          # The -f flag specifies your existing docker-compose file
+          # --build ensures the latest code is used
+          # --abort-on-container-exit stops all services once the 'app' finishes
+          docker compose -f docker-compose.yml up --build --abort-on-container-exit

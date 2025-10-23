@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:15
+    container_name: github_trends_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: github_trends
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_user -d github_trends"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: github_trends_app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres_user:postgres_password@db:5432/github_trends
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+      EMAIL_TO: ${EMAIL_TO}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+    volumes:
+      - .:/app
+    command: ["python", "main.py"]
+
+volumes:
+  postgres_data:
+

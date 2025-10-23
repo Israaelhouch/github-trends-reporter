@@ -5,10 +5,12 @@ from src.processor.processing_pipline import run_preprocess
 from src.notifier.notifying_pipline import run_notifier
 from src.db.repo_db import GitHubDB
 from src.utils.logger import setup_logger
-from config import TOPIC, TOP_N
+from config import TOPIC, TOP_N, DATABASE_URL
+
+
 
 logger = setup_logger("auto_notifier")
-
+logger.info(f"DEBUG: Connecting to DATABASE_URL: {DATABASE_URL}")
 def main():
     parser = argparse.ArgumentParser(description="GitHub Trends Reporter")
     parser.add_argument("--topic", type=str, default=None)
@@ -19,7 +21,7 @@ def main():
     top_n = args.top_n or TOP_N
     logger.info(f"Pipeline started for topic '{topic}'")
 
-    db = GitHubDB()
+    db = GitHubDB(DATABASE_URL)
     db.connect()
 
     try:

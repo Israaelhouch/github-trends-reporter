@@ -2,7 +2,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.exc import OperationalError
 from src.db.models import Base, GitHubRepo
-from config import DATABASE_URL
 from src.utils.logger import setup_logger
 import pandas as pd
 from datetime import datetime
@@ -10,7 +9,7 @@ from datetime import datetime
 logger = setup_logger("database")
 
 class GitHubDB:
-    def __init__(self, database_url=DATABASE_URL):
+    def __init__(self, database_url):
         self.engine = create_engine(database_url, echo=False)
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         self.session: Session | None = None
