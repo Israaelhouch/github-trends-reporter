@@ -62,7 +62,7 @@ You must have Docker and Docker Compose installed on your system.
 ### 1. Clone and Configure
 - Clone the repository:
 ```bash
-git clone https://github.com/israahch/github-trends-notifier.git
+git clone https://github.com/Israaelhouch/github-trends-reporter.git
 cd github-trends-notifier
 ```
 - Create a local .env file in the root directory to securely provide credentials. These variables will be loaded by Docker Compose.
