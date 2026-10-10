@@ -3,18 +3,17 @@
 [![CI](https://github.com/Israaelhouch/github-trends-reporter/actions/workflows/ci.yml/badge.svg)](https://github.com/Israaelhouch/github-trends-reporter/actions/workflows/ci.yml)
 [![Weekly report](https://github.com/Israaelhouch/github-trends-reporter/actions/workflows/weekly-report.yml/badge.svg)](https://github.com/Israaelhouch/github-trends-reporter/actions/workflows/weekly-report.yml)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
-![LLM](https://img.shields.io/badge/LLM-Ollama%20·%20open%20models-black)
 
-**Every week, find out what's growing in the ML ecosystem on GitHub, with a summary written by a free open-source LLM.**
+**A weekly report on what's growing in the ML ecosystem on GitHub.**
 
 The pipeline tracks the top 200 repositories for a topic, measures their week-over-week star growth, spots newly
-created repos that are taking off, and sends the results as an email and a Markdown report.
-It runs on GitHub Actions with **no paid APIs and no API keys**.
+created repos that are taking off, and publishes the results as a Markdown report (and optionally by email).
+It runs on GitHub Actions at no cost.
 
 👉 **[Latest report](reports/LATEST.md)**
 
 <p align="center">
-  <img src="assets/email.png" alt="Weekly email with AI summary and rising repositories" width="720">
+  <img src="assets/email.png" alt="Weekly report email" width="720">
 </p>
 
 <details>
@@ -29,29 +28,17 @@ flowchart LR
     A[GitHub API] --> B[Fetch top + rising repos]
     B --> C[(Weekly snapshots)]
     C --> D[Compare with last week]
-    D --> E[Open LLM summary<br/>Ollama]
-    E --> F[Email + Markdown report]
+    D --> E[Markdown report + email]
 ```
 
 1. **Fetch** the all-time top repos and the most-starred repos created in the last 30 days.
 2. **Snapshot** each repo's star count. A run adds an ~8 KB CSV, committed to the repo.
 3. **Compare** with last week's snapshot: fastest growing repos, new entries, languages, topics.
-4. **Summarize** with `qwen2.5:3b` running in Ollama, which writes a headline, summary, themes and per-repo categories.
-5. **Deliver** the report to `reports/` (committed automatically) and by email.
+4. **Deliver** the report to `reports/` (committed automatically) and, if configured, by email.
 
-## The AI part
-
-The summary is written by a small, free model (`qwen2.5:3b`). Small models sometimes make mistakes, so the code
-checks every answer before it is published:
-
-| What can go wrong | How it's handled |
-|---|---|
-| Malformed output | Output is constrained to a JSON schema (Pydantic) and validated |
-| Made-up repositories | Any repo that isn't in the input data is removed |
-| False claims, e.g. "grew this week" on a first run | Detected in code. The model gets its own answer back with the problem and retries. |
-| Ollama down, or output still bad | The AI section is skipped and the rest of the report is still sent |
-
-Each summary takes about 5–9 s on a laptop CPU. See [`src/ai/insights.py`](src/ai/insights.py).
+**Optional summary:** if [Ollama](https://ollama.com) is available, a small open model (`qwen2.5:3b`) adds a short
+written overview at the top of the report. Its output is schema-validated and checked against the data before use;
+if it's unavailable, the report is produced without it.
 
 ## Quick start
 
@@ -60,7 +47,7 @@ git clone https://github.com/Israaelhouch/github-trends-reporter.git
 cd github-trends-reporter
 make install
 
-# Optional AI summary (free): install Ollama from https://ollama.com, then
+# Optional written summary: install Ollama from https://ollama.com, then
 ollama serve &
 make ai-setup        # downloads qwen2.5:3b (~2 GB)
 
@@ -68,7 +55,7 @@ make run             # report → reports/LATEST.md
 ```
 
 Other topics: `python main.py --topic "large language models" --no-email`.
-Skip the AI step with `--no-ai`.
+Skip the summary with `--no-ai`.
 
 ## Running it on GitHub Actions
 
@@ -81,7 +68,7 @@ Optional settings, under **Settings → Secrets and variables → Actions**:
 |---|---|---|
 | `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_TO` | Secrets | Send the report by email (Gmail needs an [App Password](https://support.google.com/accounts/answer/185833)) |
 | `TOPIC` | Variable | Topic to track (default: `machine learning`) |
-| `AI_MODEL` | Variable | Any Ollama model, e.g. `qwen2.5:7b` for better writing |
+| `AI_MODEL` | Variable | Ollama model for the summary (default `qwen2.5:3b`) |
 | `DATABASE_URL` | Secret | Store history in PostgreSQL instead of CSV files |
 
 For local runs, the same settings go in `.env` (see [`.env.example`](.env.example)).
@@ -93,7 +80,7 @@ main.py              pipeline entry point
 src/fetcher/         GitHub API client: pagination, retries, rate limits
 src/db/history.py    weekly snapshots (CSV or SQL)
 src/processor/       growth analysis
-src/ai/insights.py   Ollama summary + guardrails
+src/ai/insights.py   optional summary (Ollama)
 src/notifier/        email / Markdown templates
 tests/               36 tests, no network needed
 ```
