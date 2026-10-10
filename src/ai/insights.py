@@ -20,9 +20,10 @@ from src import config
 logger = logging.getLogger(__name__)
 
 MAX_ATTEMPTS = 2
-# Week-over-week language. ("gained 500 stars" alone is fine: for a new repo that's simply its total.)
+# Claims of change over time. "This week" alone is fine for a weekly report, and so is "gained 500 stars"
+# (for a new repo that's simply its total) - what's blocked is comparing against a week we don't have.
 _GROWTH_WORDS = re.compile(
-    r"\b(?:this|last|past|previous) week\b|\bsince last\b|\bweek-over-week\b|\bgrowth\b|\bgrew\b"
+    r"\b(?:last|previous) week\b|\bsince last\b|\bweek-over-week\b|\bgrowth\b|\bgrew\b"
     r"|\bmomentum\b|\bincreas\w*",
     re.I,
 )
@@ -88,7 +89,7 @@ def _context_note(analysis: dict) -> str:
         )
     return (
         "This is the first run, so there is NO previous week to compare against. Do not use words like "
-        "growth, gaining, momentum, or 'this week'. Describe the recently created repositories and the "
+        "growth, momentum, increases, or last week. Describe the recently created repositories and the "
         "overall landscape. 'stargazers_count' is a total, not a change."
     )
 

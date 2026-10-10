@@ -120,3 +120,15 @@ def test_star_totals_are_not_growth_claims():
     session = SequenceSession([text])
     assert insights.generate_insights(ANALYSIS, session) is not None
     assert session.calls == 1
+
+
+def test_this_week_alone_is_not_a_growth_claim():
+    text = json.dumps(GOOD | {"headline": "This week: agent frameworks lead the new repos"})
+    session = SequenceSession([text])
+    assert insights.generate_insights(ANALYSIS, session)["headline"].startswith("This week")
+    assert session.calls == 1
+
+
+def test_comparison_with_last_week_is_still_blocked():
+    lying = json.dumps(GOOD | {"executive_summary": "More stars than last week."})
+    assert insights.generate_insights(ANALYSIS, SequenceSession([lying] * insights.MAX_ATTEMPTS)) is None
