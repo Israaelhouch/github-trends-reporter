@@ -1,5 +1,5 @@
 # 🤖 GitHub Trends Email Notifier
-[![Weekly GitHub Trends Email]([https://github.com/israahch/github-trends-notifier/actions](https://github.com/Israaelhouch/github-trends-reporter/actions)/workflows/weekly_notifier.yml/badge.svg)]([https://github.com/israahch/github-trends-notifier/actions](https://github.com/Israaelhouch/github-trends-reporter/actions))
+[![Weekly GitHub Trends Email](https://github.com/Israaelhouch/github-trends-reporter/actions/workflows/github_trends.yml/badge.svg)](https://github.com/Israaelhouch/github-trends-reporter/actions)
 
 
 Automatically fetch, analyze, and email the latest GitHub trending repositories—daily or on-demand—with historical data stored in a Dockerized PostgreSQL database.
