@@ -92,6 +92,14 @@ make test   # run tests
 make lint   # lint + format check
 ```
 
+## What's next
+
+- [ ] **Star-history charts:** add a chart of each top repo's stars over the past weeks to the report, built from `data/history/`.
+- [ ] **Multiple topics:** track several topics (e.g. *machine learning*, *LLM*, *computer vision*) in one combined weekly report.
+- [ ] **GitHub Pages site:** publish the reports as a browsable website with an archive of past weeks.
+
+Suggestions and contributions are welcome. Feel free to open an issue.
+
 ---
 
 **Israa Elhouch** · [GitHub](https://github.com/Israaelhouch) · israa.elhouch.dev@gmail.com
