@@ -140,8 +140,8 @@ To enable this automation in your repository, you only need to provide the neces
 ---
 
 ## 🙌 Credits
-**Created by:** Israa Hch  
-📧 **Contact:** issrach235@gmail.com  
+**Created by:** Israa Elhouch  
+📧 **Contact:** israa.elhouch.dev@gmail.com 
 🌐 **GitHub:** [github.com/israahch](https://github.com/israahch)
 
 ---
