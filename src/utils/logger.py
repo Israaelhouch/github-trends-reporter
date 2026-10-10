@@ -1,36 +1,29 @@
 import logging
 import os
-from datetime import datetime
 
-def setup_logger(name: str = "auto_notifier", log_dir: str = "logs"):
+_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+
+
+def setup_logging(log_dir: str = "logs", level: int = logging.INFO) -> None:
+    """Configure the root logger once: console + a rolling file in `log_dir`.
+
+    Modules should just use `logging.getLogger(__name__)`.
     """
-    Creates and configures a logger.
-    Each run creates a new log file (e.g., logs/run_2025_10_09.log)
-    """
+    root = logging.getLogger()
+    if getattr(root, "_trends_configured", False):
+        return
+
     os.makedirs(log_dir, exist_ok=True)
-    log_filename = os.path.join(log_dir, f"logs.log")
+    root.setLevel(level)
 
-    # Configure the logger
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    console = logging.StreamHandler()
+    console.setFormatter(logging.Formatter("%(levelname)s | %(name)s | %(message)s"))
 
-    # Prevent duplicate logs
-    if logger.hasHandlers():
-        logger.handlers.clear()
+    file_handler = logging.FileHandler(os.path.join(log_dir, "pipeline.log"), encoding="utf-8")
+    file_handler.setFormatter(logging.Formatter(_FORMAT))
 
-    # File handler
-    file_handler = logging.FileHandler(log_filename, encoding="utf-8")
-    file_formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s")
-    file_handler.setFormatter(file_formatter)
-
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_formatter = logging.Formatter("%(levelname)s | %(message)s")
-    console_handler.setFormatter(console_formatter)
-
-    # Add handlers
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-
-    return logger
-
+    root.addHandler(console)
+    root.addHandler(file_handler)
+    # Keep third-party HTTP chatter out of the pipeline log.
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    root._trends_configured = True

@@ -1,65 +1,103 @@
+"""Turn repository snapshots into a JSON-serialisable trend report."""
+
+import logging
 import re
-import pandas as pd
-from datetime import datetime
 from collections import Counter
-from src.utils.logger import setup_logger
+from datetime import UTC, datetime
 
-logger = setup_logger("processor")
+import pandas as pd
 
-def analyze_trends(current_data, previous_data, topic="general"):
-    """
-    Analyze GitHub repository trends and return structured insights.
-    """
-    logger.info(f"Starting GitHub trend analysis for topic '{topic}'...")
+logger = logging.getLogger(__name__)
 
-    # --- Ignore forked repos
-    current_data = current_data[current_data['fork'] == False]
+REPO_FIELDS = ["full_name", "html_url", "description", "stargazers_count", "language"]
+MIN_STARS_FOR_PCT = 500  # ignore % growth on tiny repos, where +10 stars looks like +100%
 
-    # --- Top Languages & Share
-    top_languages = current_data['language'].value_counts().head(10).to_dict()
-    language_share = {k: round(v / len(current_data) * 100, 2) for k, v in top_languages.items()}
+_STOPWORDS_TEXT = """
+a an and are as at be by for from has have in into is it its of on or that the this to with your you our we
+using use based via can will not all any more most new over than then these those what when which who how
+also just like one two toolkit library
+"""
+_STOPWORDS = frozenset(_STOPWORDS_TEXT.split())
 
-    # --- Top Organizations
-    top_organizations = current_data['owner'].value_counts().head(10).to_dict()
 
-    # --- Top Repositories by Stars
-    top_repos = current_data.nlargest(10, 'stargazers_count')[['full_name', 'stargazers_count', 'html_url']].to_dict(orient='records')
+def _records(df: pd.DataFrame, cols: list[str]) -> list[dict]:
+    cols = [c for c in cols if c in df.columns]
+    out = df[cols].astype(object).where(df[cols].notna(), None).to_dict(orient="records")
+    for rec in out:
+        for k, v in rec.items():
+            if hasattr(v, "item"):
+                rec[k] = v.item()
+    return out
 
-    # --- Keywords in repo names
-    words = " ".join(current_data['full_name'].astype(str)).lower()
-    words = re.findall(r'\b\w+\b', words)
-    keywords = dict(Counter(words).most_common(10))
 
-    results = {
-        "date": datetime.now().strftime("%Y-%m-%d"),
+def extract_keywords(df: pd.DataFrame, n: int = 15) -> dict[str, int]:
+    """Most common GitHub topics, falling back to description words when topics are sparse."""
+    counter: Counter[str] = Counter()
+    for topics in df.get("topics", pd.Series(dtype=str)).fillna(""):
+        counter.update(t for t in topics.split(",") if t)
+    if sum(counter.values()) < 20:
+        for desc in df.get("description", pd.Series(dtype=str)).fillna(""):
+            words = re.findall(r"[a-z][a-z0-9+#-]{2,}", desc.lower())
+            counter.update(w for w in words if w not in _STOPWORDS)
+    return dict(counter.most_common(n))
+
+
+def analyze_trends(
+    current: pd.DataFrame, previous: pd.DataFrame | None, topic: str, rising: pd.DataFrame | None = None
+) -> dict:
+    logger.info("Analyzing %d repos for '%s'", len(current), topic)
+
+    forked = int(current["fork"].astype(bool).sum())
+    repos = current[~current["fork"].astype(bool)]
+    total = len(repos)
+
+    top_languages = repos["language"].value_counts().head(10)
+    results: dict = {
+        "date": datetime.now(UTC).strftime("%Y-%m-%d"),
         "topic": topic,
-        "total_repos": len(current_data),
-        "forked_repos": int(current_data['fork'].sum()),
-        "top_languages": top_languages,
-        "language_share": language_share,
-        "top_organizations": top_organizations,
-        "top_repos": top_repos,
-        "keywords": keywords
+        "total_repos": total,
+        "forked_repos": forked,
+        "total_stars": int(repos["stargazers_count"].sum()),
+        "top_languages": {k: int(v) for k, v in top_languages.items()},
+        "language_share": {k: round(v / total * 100, 1) for k, v in top_languages.items()} if total else {},
+        "top_organizations": {k: int(v) for k, v in repos["owner"].value_counts().head(10).items()},
+        "top_repos": _records(repos.nlargest(10, "stargazers_count"), REPO_FIELDS),
+        "keywords": extract_keywords(repos),
+        "rising_repos": [],
+        "has_comparison": False,
     }
 
-    # --- Compare with previous data
-    if not(previous_data is None or previous_data.empty) :
-        prev_names = set(previous_data['full_name'])
-        curr_names = set(current_data['full_name'])
-        new_repos = list(curr_names - prev_names)
+    if rising is not None and not rising.empty:
+        rising = rising[~rising["fork"].astype(bool)]
+        results["rising_repos"] = _records(rising.nlargest(10, "stargazers_count"), REPO_FIELDS + ["created_at"])
 
-        merged = current_data.merge(previous_data, on='full_name', suffixes=('', '_prev'))
-        merged['stars_gained'] = merged['stargazers_count'] - merged['stargazers_count_prev']
-        merged['stars_growth_pct'] = ((merged['stargazers_count'] - merged['stargazers_count_prev']) /
-                                      merged['stargazers_count_prev'].replace(0, 1)) * 100
+    if previous is None or previous.empty:
+        logger.info("No previous snapshot - skipping week-over-week comparison.")
+        return results
 
-        fastest_growing = merged.nlargest(5, 'stars_gained')[['full_name', 'stars_gained']].to_dict(orient='records')
-        fastest_growth_pct = merged.nlargest(5, 'stars_growth_pct')[['full_name', 'stars_growth_pct']].to_dict(orient='records')
+    prev_names = set(previous["full_name"])
+    curr_names = set(repos["full_name"])
+    new_entries = repos[~repos["full_name"].isin(prev_names)]
 
-        results.update({
-            "new_trending_repos": new_repos,
-            "fastest_growing_repos": fastest_growing,
-            "fastest_growth_pct": fastest_growth_pct
-        })
-        
+    merged = repos.merge(previous[["full_name", "stargazers_count"]], on="full_name", suffixes=("", "_prev"))
+    merged["stars_gained"] = merged["stargazers_count"] - merged["stargazers_count_prev"]
+    merged["stars_growth_pct"] = (merged["stars_gained"] / merged["stargazers_count_prev"].clip(lower=1) * 100).round(2)
+    gainers = merged[merged["stars_gained"] > 0]
+    sized = gainers[gainers["stargazers_count_prev"] >= MIN_STARS_FOR_PCT]
+
+    results.update(
+        {
+            "has_comparison": True,
+            "previous_date": str(previous["snapshot_date"].iloc[0]) if "snapshot_date" in previous else None,
+            "stars_gained_total": int(merged["stars_gained"].sum()),
+            "new_trending_repos": _records(new_entries.nlargest(10, "stargazers_count"), REPO_FIELDS),
+            "dropped_out_count": len(prev_names - curr_names),
+            "fastest_growing_repos": _records(
+                gainers.nlargest(10, "stars_gained"), REPO_FIELDS + ["stars_gained", "stars_growth_pct"]
+            ),
+            "fastest_growth_pct": _records(
+                sized.nlargest(5, "stars_growth_pct"), REPO_FIELDS + ["stars_gained", "stars_growth_pct"]
+            ),
+        }
+    )
     return results

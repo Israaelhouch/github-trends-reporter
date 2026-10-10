@@ -1,39 +1,68 @@
+"""GitHub Trends Reporter - fetch -> snapshot -> analyze -> AI insights -> report -> email."""
+
 import argparse
-import os
-from src.fetcher.fetching_pipline import run_fetch
-from src.processor.processing_pipline import run_preprocess
-from src.notifier.notifying_pipline import run_notifier
-from src.db.repo_db import GitHubDB
-from src.utils.logger import setup_logger
-from config import TOPIC, TOP_N, DATABASE_URL
+import logging
+import time
+from datetime import UTC, datetime
+
+from src import config
+from src.ai.insights import generate_insights
+from src.db.history import open_history
+from src.fetcher.pipeline import run_fetch
+from src.notifier.pipeline import run_notifier
+from src.notifier.templates import generate_markdown
+from src.processor.analyze_trends import analyze_trends
+from src.processor.storage import save_analysis, save_report
+from src.utils.logger import setup_logging
+
+logger = logging.getLogger("github_trends")
 
 
-
-logger = setup_logger("auto_notifier")
-logger.info(f"DEBUG: Connecting to DATABASE_URL: {DATABASE_URL}")
-def main():
+def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="GitHub Trends Reporter")
-    parser.add_argument("--topic", type=str, default=None)
-    parser.add_argument("--top_n", type=int, default=200)
-    args = parser.parse_args()
+    parser.add_argument("--topic", default=config.TOPIC, help="Search topic (default: %(default)s)")
+    parser.add_argument("--top-n", type=int, default=config.TOP_N, help="Top repos to track (default: %(default)s)")
+    parser.add_argument(
+        "--rising-days",
+        type=int,
+        default=config.RISING_DAYS,
+        help="Window for 'rising' repos, in days (default: %(default)s)",
+    )
+    parser.add_argument("--rising-n", type=int, default=config.RISING_N)
+    parser.add_argument("--no-ai", action="store_true", help="Skip the AI (Ollama) summary")
+    parser.add_argument("--no-email", action="store_true", help="Skip sending the email")
+    return parser.parse_args(argv)
 
-    topic = args.topic or TOPIC
-    top_n = args.top_n or TOP_N
-    logger.info(f"Pipeline started for topic '{topic}'")
 
-    db = GitHubDB(DATABASE_URL)
-    db.connect()
+def main(argv=None) -> dict:
+    args = parse_args(argv)
+    setup_logging(config.LOG_DIR)
+    start = time.time()
+    logger.info("Pipeline started for topic '%s'", args.topic)
 
-    try:
-        run_fetch(topic=topic, top_n=top_n, db=db)
-        run_preprocess(topic=topic, db=db)
-        run_notifier(topic=topic)
-        logger.info("Pipeline finished successfully.")
-    except Exception:
-        logger.exception("Pipeline failed due to an error.")
-        raise
-    finally:
-        db.close() 
+    top, rising = run_fetch(args.topic, args.top_n, args.rising_days, args.rising_n)
+
+    today = datetime.now(UTC).date()
+    history = open_history(config.DATABASE_URL, config.HISTORY_DIR)
+    previous = history.load_previous(args.topic, before=today)
+    history.save(top, args.topic, today)
+
+    results = analyze_trends(top, previous, topic=args.topic, rising=rising)
+
+    if not args.no_ai:
+        insights = generate_insights(results)
+        if insights:
+            results["ai_insights"] = insights
+
+    save_analysis(results, args.topic, config.DATA_OUTPUT_DIR)
+    save_report(generate_markdown(results), args.topic, results["date"], config.REPORTS_DIR)
+
+    if not args.no_email:
+        run_notifier(results)
+
+    logger.info("Pipeline finished in %.1fs", time.time() - start)
+    return results
+
 
 if __name__ == "__main__":
     main()

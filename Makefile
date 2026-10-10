@@ -1,38 +1,36 @@
-# The main service name for your Python app
-APP_SERVICE := app
-# The main service name for your PostgreSQL database
-DB_SERVICE := db
-# The name of the persistent volume
-DB_VOLUME := github-trends-reporter_postgres_data
+.PHONY: install test lint format run run-offline ai-setup docker-up docker-down docker-clean
 
-# Use .ONESHELL to avoid issues with multi-line shell commands
-.ONESHELL:
+PY ?= .venv/bin/python
 
-.PHONY: build up down logs clean logs-app
+install:  ## Create .venv and install dev dependencies
+	python3 -m venv .venv
+	$(PY) -m pip install -r requirements-dev.txt
 
-build:
-	@echo "Building application image..."
-	docker compose build $(APP_SERVICE)
+test:  ## Run the test suite
+	$(PY) -m pytest
 
-up: build
-	@echo "Starting services..."
-	# Run the full pipeline and stop services once 'app' exits
-	docker compose up --abort-on-container-exit $(DB_SERVICE) $(APP_SERVICE)
+lint:  ## Lint and check formatting
+	$(PY) -m ruff check .
+	$(PY) -m ruff format --check .
 
-down:
-	@echo "Stopping and removing containers..."
+format:
+	$(PY) -m ruff check --fix .
+	$(PY) -m ruff format .
+
+run:  ## Run the full pipeline locally (uses Ollama if it's running)
+	$(PY) main.py
+
+run-offline:  ## Run without the AI and email steps
+	$(PY) main.py --no-ai --no-email
+
+ai-setup:  ## Download the default open model for the AI summary (~2 GB, needs Ollama)
+	ollama pull $${AI_MODEL:-qwen2.5:3b}
+
+docker-up:  ## Run once against PostgreSQL in Docker
+	docker compose up --build --abort-on-container-exit --exit-code-from app
+
+docker-down:
 	docker compose down
 
-logs:
-	@echo "Showing all logs..."
-	docker compose logs -f
-
-logs-app:
-	@echo "Showing application logs only..."
-	docker compose logs -f $(APP_SERVICE)
-
-clean: down
-	@echo "Removing database volume to ensure a fresh start..."
-	docker volume rm $(DB_VOLUME)
-	@echo "Removing generated data and logs..."
-	rm -rf data/raw data/outputs logs
+docker-clean:  ## Also delete the PostgreSQL volume
+	docker compose down --volumes

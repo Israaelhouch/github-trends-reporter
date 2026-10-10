@@ -1,0 +1,79 @@
+name: Weekly GitHub Trends Report
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"  # Mondays 08:00 UTC
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: "Topic to analyze"
+        required: false
+        default: "machine learning"
+
+permissions:
+  contents: write  # commit the report + history back to the repo
+
+concurrency:
+  group: weekly-report
+  cancel-in-progress: false
+
+env:
+  AI_MODEL: ${{ vars.AI_MODEL || 'qwen2.5:3b' }}
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      # Free, self-hosted LLM for the AI summary - no API key or paid service.
+      ollama:
+        image: ollama/ollama:latest
+        ports:
+          - 11434:11434
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Pull the open model
+        # If this fails the report is still produced, just without the AI summary.
+        continue-on-error: true
+        timeout-minutes: 10
+        run: |
+          curl -sSf http://localhost:11434/api/pull \
+            -d "{\"model\": \"${AI_MODEL}\", \"stream\": false}"
+
+      - name: Run pipeline
+        env:
+          TOPIC: ${{ inputs.topic || vars.TOPIC || 'machine learning' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OLLAMA_HOST: http://localhost:11434
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          # Optional: keep history in an external database instead of the committed CSV files.
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python main.py
+
+      - name: Commit report and history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports data
+          git diff --cached --quiet && { echo "Nothing to commit"; exit 0; }
+          git commit -m "report: $(date -u +%Y-%m-%d) GitHub trends"
+          git push
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs
+          path: logs/
+          if-no-files-found: ignore

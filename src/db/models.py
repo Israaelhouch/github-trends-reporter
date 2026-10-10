@@ -1,22 +1,22 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from sqlalchemy.ext.declarative import declarative_base
+from datetime import date
 
-Base = declarative_base()
+from sqlalchemy import Date, Index, Integer, String
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-class GitHubRepo(Base):
-    __tablename__ = "github_repos"
 
-    id = Column(Integer, primary_key=True, index=True)
-    topic = Column(String, nullable=False, index=True)
-    full_name = Column(String, nullable=False)
-    html_url = Column(String, nullable=False)
-    stargazers_count = Column(Integer)
-    language = Column(String)
-    owner = Column(String)
-    fork = Column(Boolean)
-    created_at = Column(DateTime)
-    updated_at = Column(DateTime)
-    fetched_at = Column(DateTime, nullable=False)
+class Base(DeclarativeBase):
+    pass
 
-    def __repr__(self):
-        return f"<GitHubRepo(full_name={self.full_name}, topic={self.topic})>"
+
+class SnapshotRow(Base):
+    """Star/fork counts for one repository on one day - all that week-over-week growth needs."""
+
+    __tablename__ = "star_snapshots"
+    __table_args__ = (Index("ix_snapshot_topic_date", "topic", "snapshot_date"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    topic: Mapped[str] = mapped_column(String(200))
+    snapshot_date: Mapped[date] = mapped_column(Date)
+    full_name: Mapped[str] = mapped_column(String(300))
+    stargazers_count: Mapped[int] = mapped_column(Integer)
+    forks_count: Mapped[int] = mapped_column(Integer)

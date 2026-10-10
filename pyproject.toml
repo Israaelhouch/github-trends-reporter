@@ -1,0 +1,17 @@
+[project]
+name = "github-trends-reporter"
+version = "2.0.0"
+description = "Weekly GitHub trend reports with week-over-week growth and open-source LLM insights (Ollama)."
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,29 +1,30 @@
 import json
-from datetime import datetime
+import logging
 import os
-from src.utils.logger import setup_logger
 
-logger = setup_logger("processor")
-from config import DATA_OUTPUT_DIR
-os.makedirs(DATA_OUTPUT_DIR, exist_ok=True)
+logger = logging.getLogger(__name__)
 
-def save_analysis(data, topic: str = "general"):
-    """
-    Save analysis results to a JSON file.
-    - Includes topic name and timestamp in filename.
-    - Returns the full path to the saved file or None if failed.
-    """
-    try:
-        safe_topic = topic.replace(" ", "_")
-        filename = f"analysis_{safe_topic}_{datetime.now().strftime('%Y_%m_%d')}.json"
-        filepath = os.path.join(DATA_OUTPUT_DIR, filename)
 
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
+def slugify(topic: str) -> str:
+    return "_".join(topic.lower().split())
 
-        
-        logger.info(f"Trend analysis for '{topic}' saved at: {filepath}")
-        return filepath
-    except Exception as e:
-        logger.exception(f"Failed to save analysis for '{topic}': {e}")
-        raise
+
+def save_analysis(data: dict, topic: str, output_dir: str) -> str:
+    """Write the analysis as `analysis_<topic>_<date>.json` and return the path."""
+    os.makedirs(output_dir, exist_ok=True)
+    path = os.path.join(output_dir, f"analysis_{slugify(topic)}_{data['date']}.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False, default=str)
+    logger.info("Analysis saved to %s", path)
+    return path
+
+
+def save_report(markdown: str, topic: str, date: str, reports_dir: str) -> str:
+    """Write a dated Markdown report plus `LATEST.md`, which the README links to."""
+    os.makedirs(reports_dir, exist_ok=True)
+    path = os.path.join(reports_dir, f"{date}_{slugify(topic)}.md")
+    for target in (path, os.path.join(reports_dir, "LATEST.md")):
+        with open(target, "w", encoding="utf-8") as f:
+            f.write(markdown)
+    logger.info("Markdown report saved to %s", path)
+    return path

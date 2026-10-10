@@ -1,143 +1,163 @@
-from datetime import datetime
+"""Render a trend report (the dict from `analyze_trends`, plus optional `ai_insights`) as
+an email subject, an HTML email, plain text, or Markdown."""
 
-from datetime import datetime
+from html import escape
 
-def generate_email_subject(topic: str) -> str:
-    date_str = datetime.utcnow().strftime("%Y-%m-%d")
-    return f"📊 GitHub Trends Summary: {topic.title()} ({date_str})"
 
-def generate_email_body(results: dict, html: bool = False) -> str:
-    """
-    Generate a professional GitHub Trend report email (plain text or HTML)
-    from GitHub trend analysis results. Safe for all email clients.
-    """
-    topic = results.get("topic", "General")
-    date = results.get("date", datetime.now().strftime("%Y-%m-%d"))
-    total = results.get("total_repos", 0)
-    forked = results.get("forked_repos", 0)
+def _stars(n) -> str:
+    return f"{int(n or 0):,}"
 
-    # ---------- TEXT VERSION ----------
-    if not html:
-        lines = [
-            f"📊 GitHub Trend Report — {topic}",
-            f"📅 Date: {date}",
-            f"📦 Total repositories: {total:,} | 🍴 Forked: {forked:,}",
-            "─" * 60,
-        ]
 
-        # Top Languages
-        top_langs = results.get("top_languages", {})
-        if top_langs:
-            lines.append("\n🏷️ Top Languages:")
-            for lang, count in top_langs.items():
-                lines.append(f"  • {lang}: {count}")
+def _sections(results: dict) -> list[tuple[str, list[dict], str]]:
+    """(title, repos, metric) for each repo list in the report, in display order."""
+    sections = []
+    if results.get("fastest_growing_repos"):
+        sections.append(("🚀 Fastest growing this week", results["fastest_growing_repos"][:8], "gained"))
+    if results.get("rising_repos"):
+        sections.append(("🌱 Rising newcomers (recently created)", results["rising_repos"][:8], "stars"))
+    if results.get("new_trending_repos"):
+        sections.append(("🆕 New in the top list", results["new_trending_repos"][:8], "stars"))
+    if results.get("top_repos"):
+        sections.append(("⭐ All-time top repositories", results["top_repos"][:10], "stars"))
+    return sections
 
-        # Top Organizations
-        top_orgs = results.get("top_organizations", {})
-        if top_orgs:
-            lines.append("\n🏢 Top Organizations:")
-            for org, count in top_orgs.items():
-                lines.append(f"  • {org}: {count} repos")
 
-        # Top Repositories
-        top_repos = results.get("top_repos", [])
-        if top_repos:
-            lines.append("\n⭐ Top Repositories:")
-            for r in top_repos[:10]:
-                lines.append(f"  • {r['full_name']} ({r['stargazers_count']} ⭐)\n    🔗 {r['html_url']}")
+def _metric(repo: dict, metric: str) -> str:
+    if metric == "gained":
+        pct = repo.get("stars_growth_pct")
+        suffix = f" ({pct:+.1f}%)" if pct is not None else ""
+        return f"+{_stars(repo.get('stars_gained'))} ★{suffix}"
+    return f"{_stars(repo.get('stargazers_count'))} ★"
 
-        # Fastest Growing Repositories
-        fastest_growing = results.get("fastest_growing_repos", [])
-        if fastest_growing:
-            lines.append("\n🚀 Fastest Growing Repositories:")
-            for r in fastest_growing[:5]:
-                lines.append(f"  • {r['full_name']} (+{r['stars_gained']} ⭐)\n    🔗 {r.get('html_url', '')}")
 
-        # New Trending Repositories
-        new_repos = results.get("new_trending_repos", [])
-        if new_repos:
-            lines.append("\n🆕 New Trending Repositories:")
-            for r in new_repos[:5]:
-                lines.append(f"  • {r['full_name']} ({r['stargazers_count']} ⭐)\n    🔗 {r.get('html_url', '')}")
+def generate_email_subject(results: dict) -> str:
+    ai = results.get("ai_insights") or {}
+    base = f"GitHub Trends: {results.get('topic', '').title()} ({results.get('date')})"
+    return f"{base} — {ai['headline']}" if ai.get("headline") else base
 
-        # Keywords
-        keywords = results.get("keywords", {})
-        if keywords:
-            top_keywords = list(keywords.keys())[:10]
-            lines.append("\n💡 Common Keywords:")
-            lines.append(", ".join(top_keywords))
 
-        lines.append("─" * 60)
-        lines.append("📨 Report generated automatically by GitHub Trend Notifier 🚀")
-        return "\n".join(lines)
+def generate_markdown(results: dict) -> str:
+    topic, date = results.get("topic", ""), results.get("date", "")
+    lines = [f"# GitHub Trends — {topic.title()} ({date})", ""]
 
-    # ---------- HTML VERSION ----------
+    stats = [f"**{results.get('total_repos', 0)}** repos tracked", f"**{_stars(results.get('total_stars'))}** total ★"]
+    if results.get("has_comparison"):
+        stats.append(f"**+{_stars(results.get('stars_gained_total'))}** ★ since {results.get('previous_date')}")
     else:
-        html_lines = [
-            "<html><body style='font-family:Segoe UI, Roboto, sans-serif; color:#333; background:#fafafa; margin:0; padding:0;'>",
-            "<div style='max-width:700px; margin:10px auto; padding:15px; background:#fff; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,0.1); line-height:1.25;'>",
-            f"<h2 style='color:#1a73e8; border-bottom:1px solid #eaeaea; padding-bottom:4px; margin:0 0 6px 0; font-size:18px;'>📊 GitHub Trend Report — {topic}</h2>",
-            f"<p style='margin:0 0 6px 0; font-size:14px;'><b>📅 Date:</b> {date}<br><b>📦 Total repositories:</b> {total:,} | 🍴 <b>Forked:</b> {forked:,}</p>",
-            "<hr style='margin:6px 0;'>"
-        ]
+        stats.append("_baseline run — growth appears from the next run_")
+    lines += [" · ".join(stats), ""]
 
-        def make_list(title, items):
-            html_lines.append(f"<h3 style='margin:4px 0 2px 0; font-size:15px; font-weight:500;'>{title}</h3>")
-            html_lines.append("<ul style='list-style:none; padding:0; margin:0;'>")
-            html_lines.extend(items)
-            html_lines.append("</ul>")
+    ai = results.get("ai_insights")
+    if ai:
+        lines += [f"## 🤖 AI summary: {ai['headline']}", "", ai["executive_summary"], ""]
+        if ai.get("key_themes"):
+            lines += ["**Key themes:** " + " · ".join(ai["key_themes"]), ""]
+        if ai.get("notable_repos"):
+            lines += ["| Repository | Category | Why it matters |", "|---|---|---|"]
+            for r in ai["notable_repos"]:
+                lines.append(
+                    f"| [{r['full_name']}](https://github.com/{r['full_name']}) | {r['category']} "
+                    f"| {r['why_it_matters'].replace('|', '/')} |"
+                )
+            lines.append("")
+        if ai.get("model"):
+            lines += [f"<sub>Summary written by the open model `{ai['model']}` via Ollama.</sub>", ""]
 
-        # Top Languages
-        top_langs = results.get("top_languages", {})
-        if top_langs:
-            make_list("🏷️ Top Languages", [
-                f"<li style='background:#f6f8fa; margin:1px 0; padding:2px 6px; border-radius:4px; font-size:13px;'>{lang}: {count}</li>"
-                for lang, count in top_langs.items()
-            ])
+    for title, repos, metric in _sections(results):
+        lines += [f"## {title}", ""]
+        for r in repos:
+            desc = (r.get("description") or "").replace("\n", " ").strip()
+            desc = f" — {desc[:140]}" if desc else ""
+            lines.append(f"- [{r['full_name']}]({r['html_url']}) · {_metric(r, metric)}{desc}")
+        lines.append("")
 
-        # Top Organizations
-        top_orgs = results.get("top_organizations", {})
-        if top_orgs:
-            make_list("🏢 Top Organizations", [
-                f"<li style='background:#f6f8fa; margin:1px 0; padding:2px 6px; border-radius:4px; font-size:13px;'>{org}: {count} repos</li>"
-                for org, count in top_orgs.items()
-            ])
+    if results.get("top_languages"):
+        lines += ["## 🏷️ Languages", "", "| Language | Repos | Share |", "|---|---:|---:|"]
+        share = results.get("language_share", {})
+        lines += [f"| {k} | {v} | {share.get(k, 0)}% |" for k, v in results["top_languages"].items()]
+        lines.append("")
+    if results.get("keywords"):
+        lines += ["## 💡 Top topics", "", ", ".join(f"`{k}`" for k in results["keywords"]), ""]
 
-        # Top Repositories
-        top_repos = results.get("top_repos", [])
-        if top_repos:
-            make_list("⭐ Top Repositories", [
-                f"<li style='background:#f6f8fa; margin:1px 0; padding:2px 6px; border-radius:4px; font-size:13px;'>"
-                f"<a href='{r['html_url']}' target='_blank' style='text-decoration:none; color:#0366d6;'>{r['full_name']}</a> — {r['stargazers_count']} ⭐</li>"
-                for r in top_repos[:10]
-            ])
+    lines.append("<sub>Generated automatically by github-trends-reporter.</sub>")
+    return "\n".join(lines) + "\n"
 
-        # Fastest Growing Repos
-        fastest_growing = results.get("fastest_growing_repos", [])
-        if fastest_growing:
-            make_list("🚀 Fastest Growing Repositories", [
-                f"<li style='background:#e8f0fe; margin:1px 0; padding:2px 6px; border-radius:4px; font-size:13px;'>"
-                f"<a href='{r.get('html_url','#')}' target='_blank' style='text-decoration:none; color:#0366d6;'>{r['full_name']}</a> — +{r['stars_gained']} ⭐</li>"
-                for r in fastest_growing[:5]
-            ])
 
-        # New Trending Repos
-        new_repos = results.get("new_trending_repos", [])
-        if new_repos:
-            make_list("🆕 New Trending Repositories", [
-                f"<li style='background:#e8f0fe; margin:1px 0; padding:2px 6px; border-radius:4px; font-size:13px;'>"
-                f"<a href='{r.get('html_url','#')}' target='_blank' style='text-decoration:none; color:#0366d6;'>{r['full_name']}</a> — {r['stargazers_count']} ⭐</li>"
-                for r in new_repos[:5]
-            ])
+def generate_text(results: dict) -> str:
+    lines = [generate_email_subject(results), "=" * 60]
+    ai = results.get("ai_insights")
+    if ai:
+        lines += ["", ai["executive_summary"]]
+    for title, repos, metric in _sections(results):
+        lines += ["", title]
+        lines += [f"  • {r['full_name']} ({_metric(r, metric)})  {r['html_url']}" for r in repos]
+    return "\n".join(lines) + "\n"
 
-        # Keywords
-        keywords = results.get("keywords", {})
-        if keywords:
-            top_keywords = list(keywords.keys())[:10]
-            html_lines.append("<h3 style='margin:4px 0 2px 0; font-size:15px;'>💡 Common Keywords</h3>")
-            html_lines.append(f"<p style='margin:0 0 6px 0; font-size:13px;'>{', '.join(top_keywords)}</p>")
 
-        html_lines.append("<hr style='margin:6px 0;'><p style='text-align:center; font-size:11px; color:#777; margin:0;'><i>📨 Report generated automatically by <b>GitHub Trend Notifier</b> 🚀</i></p>")
-        html_lines.append("</div></body></html>")
+_LI = "background:#f6f8fa;margin:2px 0;padding:4px 8px;border-radius:4px;font-size:13px;"
+_A = "text-decoration:none;color:#0366d6;font-weight:600;"
+_H3 = "margin:14px 0 4px;font-size:15px;"
 
-        return "\n".join(html_lines)
+
+def generate_html(results: dict) -> str:
+    e = escape
+    topic, date = e(str(results.get("topic", "")).title()), e(str(results.get("date", "")))
+    out = [
+        "<html><body style='font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#24292f;"
+        "background:#fafafa;margin:0;padding:0;'>",
+        "<div style='max-width:700px;margin:12px auto;padding:18px;background:#fff;border-radius:8px;"
+        "box-shadow:0 1px 4px rgba(0,0,0,.1);line-height:1.4;'>",
+        f"<h2 style='color:#1a73e8;margin:0 0 6px;font-size:19px;'>GitHub Trends — {topic}</h2>",
+        f"<p style='margin:0 0 8px;font-size:13px;color:#57606a;'>{date} · {results.get('total_repos', 0)} repos"
+        f" · {_stars(results.get('total_stars'))} ★"
+        + (
+            f" · <b>+{_stars(results.get('stars_gained_total'))} ★</b> since {e(str(results.get('previous_date')))}"
+            if results.get("has_comparison")
+            else " · baseline run"
+        )
+        + "</p>",
+    ]
+
+    ai = results.get("ai_insights")
+    if ai:
+        out.append(
+            "<div style='background:#eef6ff;border-left:4px solid #1a73e8;padding:10px 12px;"
+            "border-radius:4px;margin:10px 0;'>"
+        )
+        out.append(f"<div style='font-weight:600;margin-bottom:4px;'>🤖 {e(ai['headline'])}</div>")
+        out.append(f"<div style='font-size:13px;'>{e(ai['executive_summary'])}</div>")
+        if ai.get("key_themes"):
+            out.append(
+                "<div style='font-size:12px;margin-top:6px;color:#57606a;'>"
+                + " · ".join(e(t) for t in ai["key_themes"])
+                + "</div>"
+            )
+        if ai.get("model"):
+            out.append(f"<div style='font-size:11px;margin-top:6px;color:#8c959f;'>AI summary · {e(ai['model'])}</div>")
+        out.append("</div>")
+
+    for title, repos, metric in _sections(results):
+        out.append(f"<h3 style='{_H3}'>{e(title)}</h3><ul style='list-style:none;padding:0;margin:0;'>")
+        for r in repos:
+            desc = e((r.get("description") or "")[:120])
+            out.append(
+                f"<li style='{_LI}'><a href='{e(r['html_url'], quote=True)}' style='{_A}'>{e(r['full_name'])}</a>"
+                f" — {e(_metric(r, metric))}"
+                + (f"<br><span style='color:#57606a;'>{desc}</span>" if desc else "")
+                + "</li>"
+            )
+        out.append("</ul>")
+
+    if results.get("keywords"):
+        out.append(
+            f"<h3 style='{_H3}'>💡 Top topics</h3><p style='font-size:13px;margin:0;'>"
+            + ", ".join(e(k) for k in results["keywords"])
+            + "</p>"
+        )
+
+    out.append(
+        "<hr style='margin:14px 0 6px;border:none;border-top:1px solid #eee;'>"
+        "<p style='text-align:center;font-size:11px;color:#8c959f;margin:0;'>"
+        "Generated automatically by github-trends-reporter</p></div></body></html>"
+    )
+    return "\n".join(out)
