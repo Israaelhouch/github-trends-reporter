@@ -3,7 +3,7 @@
   "topic": "machine learning",
   "total_repos": 200,
   "forked_repos": 0,
-  "total_stars": 2627258,
+  "total_stars": 2627274,
   "top_languages": {
     "Python": 53,
     "Jupyter Notebook": 45,
@@ -45,14 +45,14 @@
       "full_name": "tensorflow/tensorflow",
       "html_url": "https://github.com/tensorflow/tensorflow",
       "description": "An Open Source Machine Learning Framework for Everyone",
-      "stargazers_count": 200645,
+      "stargazers_count": 200648,
       "language": "C++"
     },
     {
       "full_name": "huggingface/transformers",
       "html_url": "https://github.com/huggingface/transformers",
       "description": "🤗 Transformers: the model-definition framework for state-of-the-art machine learning models in text, vision, audio, and multimodal models, for both inference and training. ",
-      "stargazers_count": 167090,
+      "stargazers_count": 167102,
       "language": "Python"
     },
     {
@@ -211,31 +211,5 @@
       "created_at": "2026-10-03T23:50:49Z"
     }
   ],
-  "has_comparison": false,
-  "ai_insights": {
-    "headline": "New Repositories Highlighting ML Education and Open Source Frameworks Emerge",
-    "executive_summary": "Two new repositories stand out: 'ai-engineering-course' has gained significant stargazers, while 'DeepEP-Ascend' introduces a high-performance communication library for machine learning on Huawei Ascend NPUs. The landscape is also marked by popular open-source projects like TensorFlow and scikit-learn.",
-    "key_themes": [
-      "Machine Learning Education",
-      "Open Source Frameworks",
-      "AI Hardware Support"
-    ],
-    "notable_repos": [
-      {
-        "full_name": "amitshekhariitbhu/ai-engineering-course",
-        "category": "Learning Resources",
-        "why_it_matters": "A free AI Engineering course for step-by-step learning."
-      },
-      {
-        "full_name": "deepseek-ai/DeepEP-Ascend",
-        "category": "MLOps & Infrastructure",
-        "why_it_matters": "High-performance communication library for Huawei Ascend NPUs."
-      }
-    ],
-    "model": "qwen2.5:3b",
-    "category_breakdown": {
-      "Learning Resources": 1,
-      "MLOps & Infrastructure": 1
-    }
-  }
+  "has_comparison": false
 }

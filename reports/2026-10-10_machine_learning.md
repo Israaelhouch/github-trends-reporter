@@ -1,19 +1,6 @@
 # GitHub Trends — Machine Learning (2026-10-10)
 
-**200** repos tracked · **2,627,258** total ★ · _baseline run — growth appears from the next run_
-
-## 🤖 AI summary: New Repositories Highlighting ML Education and Open Source Frameworks Emerge
-
-Two new repositories stand out: 'ai-engineering-course' has gained significant stargazers, while 'DeepEP-Ascend' introduces a high-performance communication library for machine learning on Huawei Ascend NPUs. The landscape is also marked by popular open-source projects like TensorFlow and scikit-learn.
-
-**Key themes:** Machine Learning Education · Open Source Frameworks · AI Hardware Support
-
-| Repository | Category | Why it matters |
-|---|---|---|
-| [amitshekhariitbhu/ai-engineering-course](https://github.com/amitshekhariitbhu/ai-engineering-course) | Learning Resources | A free AI Engineering course for step-by-step learning. |
-| [deepseek-ai/DeepEP-Ascend](https://github.com/deepseek-ai/DeepEP-Ascend) | MLOps & Infrastructure | High-performance communication library for Huawei Ascend NPUs. |
-
-<sub>Summary written by the open model `qwen2.5:3b` via Ollama.</sub>
+**200** repos tracked · **2,627,274** total ★ · _baseline run — growth appears from the next run_
 
 ## 🌱 Rising newcomers (recently created)
 
@@ -28,8 +15,8 @@ Two new repositories stand out: 'ai-engineering-course' has gained significant s
 
 ## ⭐ All-time top repositories
 
-- [tensorflow/tensorflow](https://github.com/tensorflow/tensorflow) · 200,645 ★ — An Open Source Machine Learning Framework for Everyone
-- [huggingface/transformers](https://github.com/huggingface/transformers) · 167,090 ★ — 🤗 Transformers: the model-definition framework for state-of-the-art machine learning models in text, vision, audio, and multimodal models, f
+- [tensorflow/tensorflow](https://github.com/tensorflow/tensorflow) · 200,648 ★ — An Open Source Machine Learning Framework for Everyone
+- [huggingface/transformers](https://github.com/huggingface/transformers) · 167,102 ★ — 🤗 Transformers: the model-definition framework for state-of-the-art machine learning models in text, vision, audio, and multimodal models, f
 - [microsoft/ML-For-Beginners](https://github.com/microsoft/ML-For-Beginners) · 91,392 ★ — 12 weeks, 26 lessons, 52 quizzes, classic Machine Learning for all
 - [fighting41love/funNLP](https://github.com/fighting41love/funNLP) · 83,803 ★ — 中英文敏感词、语言检测、中外手机/电话归属地/运营商查询、名字推断性别、手机号抽取、身份证抽取、邮箱抽取、中日文人名库、中文缩写库、拆字词典、词汇情感值、停用词、反动词表、暴恐词表、繁简体转换、英文模拟中文发音、汪峰歌词生成器、职业名称词库、同义词库、反义词库、否定词库、汽车品牌
 - [josephmisiti/awesome-machine-learning](https://github.com/josephmisiti/awesome-machine-learning) · 74,566 ★ — A curated list of awesome Machine Learning frameworks, libraries and software.

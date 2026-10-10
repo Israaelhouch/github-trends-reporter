@@ -52,7 +52,7 @@ allmachinelearning/MachineLearning,3862,978
 amanchadha/coursera-deep-learning-specialization,4397,2675
 amazon-archives/amazon-dsstne,4390,721
 amueller/introduction_to_ml_with_python,8215,4676
-anbeime/skill,7790,701
+anbeime/skill,7790,702
 andrewekhalel/MLQuestions,4918,800
 apache/brpc,17628,4146
 apache/predictionio,12518,1895
@@ -97,7 +97,7 @@ googlecreativelab/teachable-machine-v1,3870,607
 gorgonia/gorgonia,5926,451
 gradio-app/gradio,43705,3622
 grananqvist/Awesome-Quant-Machine-Learning-Trading,4045,703
-greyhatguy007/Machine-Learning-Specialization-Coursera,8008,3757
+greyhatguy007/Machine-Learning-Specialization-Coursera,8009,3757
 grobidOrg/grobid,5166,566
 guess-js/guess,7122,198
 gunthercox/ChatterBot,14518,4414
@@ -107,7 +107,7 @@ harvard-edge/cs249r_book,28928,3642
 hibayesian/awesome-automl-papers,4162,676
 higgsfield-ai/higgsfield,5936,1065
 hudson-and-thames/mlfinlab,4939,1291
-huggingface/transformers,167090,34793
+huggingface/transformers,167102,34794
 huggingface/transformers.js,16343,1199
 humphd/have-fun-with-machine-learning,5114,530
 huseinzol05/Stock-Prediction-Models,9501,3051
@@ -122,7 +122,7 @@ johnmyleswhite/ML_for_Hackers,3731,2174
 jonkrohn/ML-foundations,4894,2320
 josephmisiti/awesome-machine-learning,74566,15665
 jphall663/awesome-machine-learning-interpretability,4072,627
-k4yt3x/video2x,22136,1921
+k4yt3x/video2x,22136,1922
 kaieye/2022-Machine-Learning-Specialization,4618,1616
 kailashahirwar/cheatsheets-ai,15435,3367
 khangich/machine-learning-interview,12836,2040
@@ -141,7 +141,7 @@ lululxvi/deepxde,4461,1000
 lutzroeder/netron,33556,3187
 marcotcr/lime,12167,1846
 mdbloice/Augmentor,5130,868
-microsoft/ML-For-Beginners,91392,22586
+microsoft/ML-For-Beginners,91392,22587
 microsoft/SynapseML,5244,868
 microsoft/nni,14368,1849
 ml5js/ml5-library,6583,898
@@ -184,7 +184,7 @@ stefan-jansen/machine-learning-for-trading,21292,5691
 susanli2016/Machine-Learning-with-Python,4602,4753
 tangyudi/Ai-Learn,13400,2671
 tensorflow/serving,6362,2204
-tensorflow/tensorflow,200645,78908
+tensorflow/tensorflow,200648,78908
 timeseriesAI/tsai,6127,721
 timzhang642/3D-Machine-Learning,10203,1795
 trekhleb/homemade-machine-learning,24815,4184
