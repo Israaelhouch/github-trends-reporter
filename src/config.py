@@ -44,7 +44,8 @@ AI_TIMEOUT = int(_env("AI_TIMEOUT", "600"))  # seconds; CPU inference on CI runn
 # Email (optional)
 # -------------------------------
 EMAIL_USER = _env("EMAIL_USER")
-EMAIL_PASS = _env("EMAIL_PASS")  # an App Password, NOT your Gmail login password
+# An App Password, NOT your Gmail login password. Spaces/newlines from copy-pasting are removed.
+EMAIL_PASS = "".join((_env("EMAIL_PASS") or "").split()) or None
 EMAIL_RECEIVER = _env("EMAIL_TO")
 EMAIL_SMTP_SERVER = _env("EMAIL_SMTP_SERVER", "smtp.gmail.com")
 EMAIL_SMTP_PORT = int(_env("EMAIL_SMTP_PORT", "587"))

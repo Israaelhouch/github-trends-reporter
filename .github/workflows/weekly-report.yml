@@ -33,9 +33,9 @@ jobs:
           - 11434:11434
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: pip
@@ -63,6 +63,8 @@ jobs:
         run: python main.py
 
       - name: Commit report and history
+        # Runs even if the pipeline failed late (e.g. email), so the week's data isn't lost.
+        if: ${{ !cancelled() }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -71,7 +73,7 @@ jobs:
           git commit -m "report: $(date -u +%Y-%m-%d) GitHub trends"
           git push
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: logs

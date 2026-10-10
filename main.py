@@ -9,6 +9,7 @@ from src import config
 from src.ai.insights import generate_insights
 from src.db.history import open_history
 from src.fetcher.pipeline import run_fetch
+from src.notifier.mailer import EmailError
 from src.notifier.pipeline import run_notifier
 from src.notifier.templates import generate_markdown
 from src.processor.analyze_trends import analyze_trends
@@ -34,7 +35,8 @@ def parse_args(argv=None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def main(argv=None) -> dict:
+def main(argv=None) -> int:
+    """Run the pipeline. Returns the process exit code (1 if an optional step like email failed)."""
     args = parse_args(argv)
     setup_logging(config.LOG_DIR)
     start = time.time()
@@ -57,12 +59,17 @@ def main(argv=None) -> dict:
     save_analysis(results, args.topic, config.DATA_OUTPUT_DIR)
     save_report(generate_markdown(results), args.topic, results["date"], config.REPORTS_DIR)
 
+    exit_code = 0
     if not args.no_email:
-        run_notifier(results)
+        try:
+            run_notifier(results)
+        except EmailError as exc:
+            logger.error("%s (The report and history were still saved.)", exc)
+            exit_code = 1
 
     logger.info("Pipeline finished in %.1fs", time.time() - start)
-    return results
+    return exit_code
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
