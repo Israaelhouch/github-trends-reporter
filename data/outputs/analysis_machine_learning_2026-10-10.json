@@ -3,7 +3,7 @@
   "topic": "machine learning",
   "total_repos": 200,
   "forked_repos": 0,
-  "total_stars": 2627274,
+  "total_stars": 2627281,
   "top_languages": {
     "Python": 53,
     "Jupyter Notebook": 45,
@@ -45,14 +45,14 @@
       "full_name": "tensorflow/tensorflow",
       "html_url": "https://github.com/tensorflow/tensorflow",
       "description": "An Open Source Machine Learning Framework for Everyone",
-      "stargazers_count": 200648,
+      "stargazers_count": 200650,
       "language": "C++"
     },
     {
       "full_name": "huggingface/transformers",
       "html_url": "https://github.com/huggingface/transformers",
       "description": "🤗 Transformers: the model-definition framework for state-of-the-art machine learning models in text, vision, audio, and multimodal models, for both inference and training. ",
-      "stargazers_count": 167102,
+      "stargazers_count": 167105,
       "language": "Python"
     },
     {
